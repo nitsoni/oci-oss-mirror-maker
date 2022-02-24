@@ -1,0 +1,73 @@
+# Copyright (c) 2020, Oracle and/or its affiliates. All rights reserved.
+# Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
+
+title: "Quick start to create a MM2 setup"
+stackDescription: "A Quick start which will showcase the MirrorMaker2 in action. The stack also creates a producer to publish sample messages to a sample_topic in the source region."
+schemaVersion: 1.1.0
+version: "20200301"
+locale: "en"
+
+variableGroups:
+- title: ${Messages.solutionsHub.generalConfig()}
+  visible: false
+  variables:
+  - tenancy_ocid
+  - current_user_ocid
+  - fingerprint
+  - private_key_path
+  - VCN-CIDR
+  - mirrormaker-CIDR
+  - instance_os
+  - linux_os_version
+  - instance_flex_shape_ocpus
+  - instance_flex_shape_memory
+  - instance_shape
+  - ssh_public_key
+  
+
+- title: ${Messages.solutionsHub.requiredConfig()}
+  visible: true  
+  variables:
+  - compartment_ocid
+  - targetRegion
+
+- title: ${Messages.solutionsHub.optionalConfig()}
+  visible: true  
+  variables:
+  - sourceRegion
+  - source_stream_pool
+  - Target_stream_pool
+
+variables:
+
+  compartment_ocid:
+    type: oci:identity:compartment:id
+    required: true
+    title: ${Messages.solutionsHub.genericVariables.compartment.title()}
+    description: ${Messages.solutionsHub.genericVariables.compartment.description()}
+
+  sourceRegion:
+    type: oci:identity:region:name
+    required: true
+    title: "Source Region"
+    description: "Source region from where the streams will be replicated."
+
+  targetRegion:
+    type: oci:identity:region:name
+    required: true
+    title: "Target region."
+    description: "Target region where streams will be replicated to."
+
+  source_stream_pool:
+    type: string
+    required: true
+    title: "Source Stream pool name"
+    description: "Name of the stream pool in the source region"
+
+  Target_stream_pool:
+    type: string
+    required: false
+    title: "Target Stream pool name"
+    description: "Name of the stream pool in the target region"
+
+
