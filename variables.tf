@@ -7,7 +7,6 @@ variable "region" {}
 variable "targetRegion" {}
 variable "current_user_ocid" {}
 
-# variable "user_ocid" {}
 variable "fingerprint" {}
 variable "private_key_path" {}
 
@@ -90,7 +89,15 @@ variable "instance_flex_shape_memory" {
   default = 10
 }
 
-variable "ssh_public_key" {
+variable "public_ssh_key" {
+  default = ""
+}
+
+variable "generate_public_ssh_key" {
+  default = true
+}
+
+variable "private_ssh_key_path" {
   default = ""
 }
 

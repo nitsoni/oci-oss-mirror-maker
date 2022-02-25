@@ -18,7 +18,7 @@ resource "tls_private_key" "public_private_key_pair" {
 data "template_file" "key_script" {
   template = file("./scripts/sshkey.tpl")
   vars = {
-    ssh_public_key = tls_private_key.public_private_key_pair.public_key_openssh
+    ssh_public_key = var.generate_public_ssh_key ? tls_private_key.public_private_key_pair.public_key_openssh : var.public_ssh_key
   }
 }
 
@@ -81,7 +81,7 @@ resource "oci_core_instance" "mm2_instance" {
   }
 
   metadata = {
-    ssh_authorized_keys = var.ssh_public_key
+    ssh_authorized_keys = var.generate_public_ssh_key ? tls_private_key.public_private_key_pair.public_key_openssh : var.public_ssh_key
     user_data           = data.template_cloudinit_config.cloud_init.rendered
   }
 

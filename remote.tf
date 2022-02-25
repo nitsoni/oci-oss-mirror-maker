@@ -34,10 +34,6 @@ data "template_file" "producer_config" {
   }
 }
 
-# data "template_file" "bootstrap_script" {
-#   template = file("./scripts/bootstrap.sh")
-# }
-
 resource "null_resource" "run_scripts" {
 
   depends_on = [oci_core_instance.mm2_instance, oci_streaming_stream_pool.target, oci_streaming_stream_pool.source, oci_streaming_connect_harness.mm2_connect_harness]
@@ -47,11 +43,12 @@ resource "null_resource" "run_scripts" {
       type        = "ssh"
       user        = "opc"
       host        = oci_core_instance.mm2_instance.public_ip
-      private_key = tls_private_key.public_private_key_pair.private_key_pem
+      private_key = var.generate_public_ssh_key ? tls_private_key.public_private_key_pair.private_key_pem : file (var.private_ssh_key_path)
+      #private_key = tls_private_key.public_private_key_pair.private_key_pem
       agent       = false
       timeout     = "10m"
     }
-    content     = data.template_file.mm2_config.rendered #"./config/mm2.config"
+    content     = data.template_file.mm2_config.rendered
     destination = "/home/opc/mm2.config"
   }
 
@@ -60,7 +57,8 @@ resource "null_resource" "run_scripts" {
       type        = "ssh"
       user        = "opc"
       host        = oci_core_instance.mm2_instance.public_ip
-      private_key = tls_private_key.public_private_key_pair.private_key_pem
+      private_key = var.generate_public_ssh_key ? tls_private_key.public_private_key_pair.private_key_pem : file (var.private_ssh_key_path)
+      #private_key = tls_private_key.public_private_key_pair.private_key_pem
       agent       = false
       timeout     = "10m"
     }
@@ -68,25 +66,13 @@ resource "null_resource" "run_scripts" {
     destination = "/home/opc/producer.config"
   }
 
-  # provisioner "file" {
-  #   connection {
-  #     type        = "ssh"
-  #     user        = "opc"
-  #     host        = oci_core_instance.mm2_instance.public_ip
-  #     private_key = tls_private_key.public_private_key_pair.private_key_pem
-  #     agent       = false
-  #     timeout     = "10m"
-  #   }
-  #   content      =  data.template_file.bootstrap_script.rendered
-  #   destination = "/home/opc/bootstrap"
-  # }
-
   provisioner "remote-exec" {
     connection {
       type        = "ssh"
       user        = "opc"
       host        = oci_core_instance.mm2_instance.public_ip
-      private_key = tls_private_key.public_private_key_pair.private_key_pem
+      private_key = var.generate_public_ssh_key ? tls_private_key.public_private_key_pair.private_key_pem : file (var.private_ssh_key_path)
+      #private_key = tls_private_key.public_private_key_pair.private_key_pem
       agent       = false
       timeout     = "10m"
     }
@@ -99,11 +85,6 @@ resource "null_resource" "run_scripts" {
       "chmod u+x ./kafka/bin/connect-mirror-maker.sh",
       "echo 'Starrting MM2'",
       "nohup ./kafka/bin/connect-mirror-maker.sh mm2.config --clusters target_cluster >> mm2.logs &",
-      # "echo 'nohup /home/opc/kafka/bin/connect-mirror-maker.sh mm2.config --clusters target_cluster >> mm2.logs &' | sudo tee -a  /etc/rc.d/rc.local",
-      # "echo 'nohup /home/opc/kafka/bin/kafka-producer-perf-test.sh --producer.config producer.config --topic sample_topic --num-records 1000 --record-size 1024 --throughput 5 >> producer.log &' | sudo tee -a  /etc/rc.d/rc.local",
-      # "chmod +x /etc/rc.d/rc.local",
-      # "systemctl enable rc-local",
-      # "systemctl start rc-local"
       "sleep 2",
       "echo 'Starrting Producer'",
       "nohup ./kafka/bin/kafka-producer-perf-test.sh --producer.config producer.config --topic sample_topic --num-records 1000 --record-size 1024 --throughput 5 >> producer.log &",
