@@ -42,9 +42,15 @@ private_key_path     = "<pem_private_key_path>"
 
 # Region
 region = "<oci_region>"
+targetRegion = "<target_region>"
 
 # Compartment
 compartment_ocid = "<compartment_ocid>"
+
+generate_public_ssh_key = false
+public_ssh_key = "<ssh-rsa AAAAB3NzaC .... rsa-key-20211034>"
+private_ssh_key_path = "<path_to_pem_file>"
+
 
 ````
 
